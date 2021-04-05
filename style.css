@@ -45,12 +45,12 @@
     display: grid;
     justify-items: center;
     padding-top: 10px;
-    color:orange;
+    color:#d06805;
     background-color: #434343;
     align-items: center;
   }
   .slider{
-    background-color: orange;
+    background-color: #d06805;
   }
 span[data-key],.delete{
   width: 50px;
