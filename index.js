@@ -1,4 +1,3 @@
-
 const jsdom = require( 'jsdom' );
 const { JSDOM } = require('jsdom');
 const fs = require( 'fs' );
@@ -19,16 +18,17 @@ let last = ''
 const operators = ["+", "-", "x", "÷"];
 let userInput = []
 
-input = dom.window.document.querySelector(".input")
+let inputDisplay = dom.window.document.querySelector(".input")
 
 const handleKeyPress = (e)=> {
   entry = e.target.dataset.key;
   if(operators.indexOf(entry)!=-1){
     userInput = userInput.concat([val,entry])
   }
-  val = val+entry
-  last = val.replace(userInput.join(''),'')
-  dom.window.document.querySelector(".input").innerHTML = val
+  val = val+entry;
+  last = val.replace(userInput.join(''),'');
+  val = normalize(val)
+  inputDisplay.innerHTML = val;
   }
 
 function tokenizeUserInput(){
@@ -36,12 +36,26 @@ function tokenizeUserInput(){
   return userInput
   }
 
+function normalize(val){
+  if((operators.indexOf(val[0])!==-1) && val[0]!='-'){
+    val = val.slice(1)
+    return val
+  }
+  return val
+}
+
 function evaluate(e){}
 
-function deleteKeyPress(e){}
+const deleteKeyPress = (e)=>{
+  val =''
+  last=''
+  inputDisplay.innerHTML = '';
+}
 
 const fn = {
+  inputDisplay,
   handleKeyPress,
-  tokenizeUserInput
+  tokenizeUserInput,
+  deleteKeyPress
 }
 module.exports = fn;
