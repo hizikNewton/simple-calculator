@@ -11,7 +11,8 @@ var dom = new JSDOM( html,{ runScripts: "dangerously",resources: "usable" },{ vi
 
 const {inputDisplay,handleKeyPress,deleteKeyPress,tokenizeUserInput,result} = require( '../index.js' );
 
-let toInput
+let toInput,output
+
 if ( global !== undefined ) {
     global.window = dom.window;
     global.document = dom.window.document;
@@ -26,7 +27,6 @@ function runInput(input){
         })
     }
 }
-
 function clearInput(){
     let key = dom.window.document.querySelector(".delete")
     key.addEventListener("click",deleteKeyPress);
@@ -60,7 +60,7 @@ describe('UserInput',()=>{
     it('can only starts with (-)operator',()=>{
         clearInput()
         toInput = [["+","124","x","2456"],["-","234","+","246"],["x","1234","-","2456"],["+","1234","÷","2456"]]
-        let output = []
+        output = []
         toInput.forEach((i)=>i[0]=="-"?output.push(i.join("")):output.push(i.slice(1).join('')))
         //output = [ '124*2456', '-234+246', '1234-2456', '1234*2456' ]
         let toOutput = []
@@ -72,10 +72,13 @@ describe('UserInput',()=>{
        expect(toOutput).toEqual(output)
     });
 
-    /* it('contains only one decimal point',()=>{
-
-        toInput = ["5362","+","1234"]
-        expect(result).toEqual(6596)
-    }) */
+    it.only('contains only one decimal point',()=>{
+        clearInput()
+        toInput = ["5.36.2","+",".12.34"]
+        output = "5.362+1.234"
+        runInput(toInput)
+        expect(inputDisplay.textContent).toMatch(output)
+    })
+    //remove leading zero if integer
     
 })
