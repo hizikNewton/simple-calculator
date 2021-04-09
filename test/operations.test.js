@@ -62,7 +62,7 @@ describe('UserInput',()=>{
         toInput = [["+","124","x","2456"],["-","234","+","246"],["x","1234","-","2456"],["+","1234","÷","2456"]]
         output = []
         toInput.forEach((i)=>i[0]=="-"?output.push(i.join("")):output.push(i.slice(1).join('')))
-        //output = [ '124*2456', '-234+246', '1234-2456', '1234*2456' ]
+        //output = [ '124*2456', '-234+246', '1234-2456', '1234*2456',"5.362","+",".1234" ]
         let toOutput = []
         toInput.forEach(i=>{
             clearInput()
@@ -72,13 +72,12 @@ describe('UserInput',()=>{
        expect(toOutput).toEqual(output)
     });
 
-    it.only('contains only one decimal point',()=>{
+    it('contains only one decimal point',()=>{
         clearInput()
-        toInput = ["5.36.2","+",".12.34"]
-        output = "5.362+1.234"
+        toInput = ["5.362","+","12.3.4"]
+        output = "5.362+12.34"
         runInput(toInput)
         expect(inputDisplay.textContent).toMatch(output)
     })
     //remove leading zero if integer
-    
 })
