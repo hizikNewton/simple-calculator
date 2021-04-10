@@ -27,6 +27,15 @@ function runInput(input){
         })
     }
 }
+function runArrayInput(inputArr){
+    let result = []
+    inputArr.forEach((i)=>{
+        runInput(i)
+        result.push(inputDisplay.textContent)
+        clearInput()
+    });
+    return result
+}
 function clearInput(){
     let key = dom.window.document.querySelector(".delete")
     key.addEventListener("click",deleteKeyPress);
@@ -45,21 +54,26 @@ describe('Browser Window',()=>{
  })
 
 describe('UserInput',()=>{
-    it.skip('displays a computable string',()=>{
+    it('displays a correct string',()=>{
         toInput = [["5362","x","1234"],["1234","÷","2456"]]
         output = []
-        let result = []
         toInput.forEach((i)=>{
             i = i.join('')
+            output.push(i)
+        })
+        /* toInput.forEach((i)=>{
+            i = i.join('').push()i
             i.includes('x')?output.push(i.replace('x','*'))
-            :i.includes('÷')?output.push(i.replace('÷','/'))
+            :i.includes('÷')?output.push(i.replace('÷','/')) 
             :output.push(i)
         })
         toInput.forEach((i)=>{
             runInput(i)
             result.push(inputDisplay.textContent)
             clearInput()
-        });
+        }); */
+
+        let result = runArrayInput(toInput)
         expect(result).toEqual(output)
     });
 
@@ -71,7 +85,7 @@ describe('UserInput',()=>{
         expect(tokened).toEqual(toInput)
     });
 
-    it('can only starts with (-)operator',()=>{
+    it('can only starts with minus(-) as operator',()=>{
         clearInput()
         toInput = [["+","124","x","2456"],["-","234","+","246"],["x","1234","-","2456"],["+","1234","÷","2456"]]
         output = [ '124x2456', '-234+246', '1234-2456', '1234÷2456' ]
@@ -94,7 +108,6 @@ describe('UserInput',()=>{
     //cannot contain double operator
     it('cannot contain double operator',()=>{
         clearInput()
-        let result = []
         toInput = [
                     ["+","124","x","÷","2456"],
                     ["-","234","+","-","789"],
@@ -102,13 +115,21 @@ describe('UserInput',()=>{
                     ["+","1234","+","÷","5426"],
                     ["18","÷","x","42"]
                 ]
+        let result = runArrayInput(toInput)
         
-        toInput.forEach((i)=>{
-            runInput(i)
-            result.push(inputDisplay.textContent)
-            clearInput()
-        });
         output = [ '124÷2456', '-234-789', '1234x321','1234÷5426','18x42' ]
         expect(result).toEqual(output)
-    })
+    });
+    //remove leading zero
+    it('should remove leading zero',()=>{
+        toInput = [
+            ["0000124","÷","026"],
+            ["+0124","x","02456"],
+            ["0.234","+","0789"],
+            ["-01234","-","0.321"]
+        ]
+        let result = runArrayInput(toInput)
+        output = ['124÷26', '124x2456', '0.234+789', '-1234-0.321']
+        expect(result).toEqual(output)
+    });
 })

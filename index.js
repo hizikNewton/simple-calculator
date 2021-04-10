@@ -32,21 +32,22 @@ function handleKeyPress(e){
   last = val.replace(userInput.join(''),'');
   val = normalize(val,entry,last)
   val = noDoubleOperator(val,entry)
+  val = noLeadingZero(val,entry)
   inputDisplay.innerHTML = val;
-  }
+}
 
 function tokenizeUserInput(){
   userInput = userInput.concat(last)
   return userInput
   }
 
-function normalize(val,entry,last){ 
-
+function normalize(val,entry){ 
   if((operators.indexOf(val[0])!==-1) && val[0]!='-'){
     val = val.slice(1)
-  }  
+  }
   return val
 }
+
 function noDoubleOperator(val,entry){
   if(operators.indexOf(entry)!=-1){
     myop = operators.concat(['*','/'])
@@ -74,6 +75,33 @@ function justOneDecimal(entry,userInput,last){
     }
   }
   return entry
+}
+
+function noLeadingZero(val,entry){
+  const afterOpCheck =(val)=>val[0]==0&&val[1]!=='.'
+  if(val.length>1){
+    if(val[0]=='-'){
+      let toCheck = val.slice(1)
+      if(afterOpCheck(toCheck)){
+        val = val[0]+toCheck.slice(1)
+        return val
+        }
+      
+      }
+      if(val[val.length-1]!=='.' && val[val.length-2]=='0'&& operators.indexOf(val[val.length-3])!==-1){
+        val = val.slice(0,-2)+entry
+        return val
+        }
+    else{
+      if(afterOpCheck(val)){
+        val = val.slice(1)
+        return val
+      }
+    }
+  }
+
+  
+  return val
 }
 
 function evaluate(e){
