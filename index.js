@@ -16,22 +16,22 @@ keys.forEach(key => {
 let val = '';
 let last = ''
 let entry
-const operators = ["+", "-", "x", "÷"];
+const operators = ["+", "-", "x","÷"];
 let userInput = []
 
 let inputDisplay = dom.window.document.querySelector(".input")
 
-
-
 function handleKeyPress(e){
   entry = e.target.dataset.key;
+
   if(operators.indexOf(entry)!=-1){
     userInput = userInput.concat([val,entry])
   }
   entry = justOneDecimal(entry,userInput,last)
   val = val+entry;
   last = val.replace(userInput.join(''),'');
-  val = normalize(val,last,entry)
+  val = normalize(val,entry,last)
+  val = noDoubleOperator(val,entry)
   inputDisplay.innerHTML = val;
   }
 
@@ -40,10 +40,19 @@ function tokenizeUserInput(){
   return userInput
   }
 
-function normalize(val){
+function normalize(val,entry,last){ 
+
   if((operators.indexOf(val[0])!==-1) && val[0]!='-'){
     val = val.slice(1)
-    return val
+  }  
+  return val
+}
+function noDoubleOperator(val,entry){
+  if(operators.indexOf(entry)!=-1){
+    myop = operators.concat(['*','/'])
+    if(val.length>1&&myop.includes(val[val.length-2])){
+      val = val.slice(0,-2)+entry
+    }
   }
   return val
 }
@@ -67,7 +76,15 @@ function justOneDecimal(entry,userInput,last){
   return entry
 }
 
-function evaluate(e){}
+function evaluate(e){
+    /* if(val.includes('x')){
+    val = val.replace('x','*')
+  }
+  if(val.includes('÷')){
+    val = val.replace('÷','/')
+  }
+ */
+}
 
 function deleteKeyPress(e){
   userInput = []

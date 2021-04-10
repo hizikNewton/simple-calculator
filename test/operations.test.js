@@ -45,14 +45,28 @@ describe('Browser Window',()=>{
  })
 
 describe('UserInput',()=>{
-    it('displays a computable string',()=>{
-        toInput = ["5362","+","1234"]
-        let userInput = toInput.join('');
-        runInput(toInput)
-        expect(inputDisplay.textContent).toBe(userInput)
+    it.skip('displays a computable string',()=>{
+        toInput = [["5362","x","1234"],["1234","÷","2456"]]
+        output = []
+        let result = []
+        toInput.forEach((i)=>{
+            i = i.join('')
+            i.includes('x')?output.push(i.replace('x','*'))
+            :i.includes('÷')?output.push(i.replace('÷','/'))
+            :output.push(i)
+        })
+        toInput.forEach((i)=>{
+            runInput(i)
+            result.push(inputDisplay.textContent)
+            clearInput()
+        });
+        expect(result).toEqual(output)
     });
 
     it('should be an array of strings',()=>{
+        clearInput()
+        toInput = ["5.362","+","12.34"]
+        runInput(toInput)
         let tokened = tokenizeUserInput()
         expect(tokened).toEqual(toInput)
     });
@@ -60,9 +74,7 @@ describe('UserInput',()=>{
     it('can only starts with (-)operator',()=>{
         clearInput()
         toInput = [["+","124","x","2456"],["-","234","+","246"],["x","1234","-","2456"],["+","1234","÷","2456"]]
-        output = []
-        toInput.forEach((i)=>i[0]=="-"?output.push(i.join("")):output.push(i.slice(1).join('')))
-        //output = [ '124*2456', '-234+246', '1234-2456', '1234*2456',"5.362","+",".1234" ]
+        output = [ '124x2456', '-234+246', '1234-2456', '1234÷2456' ]
         let toOutput = []
         toInput.forEach(i=>{
             clearInput()
@@ -79,5 +91,24 @@ describe('UserInput',()=>{
         runInput(toInput)
         expect(inputDisplay.textContent).toMatch(output)
     })
-    //remove leading zero if integer
+    //cannot contain double operator
+    it('cannot contain double operator',()=>{
+        clearInput()
+        let result = []
+        toInput = [
+                    ["+","124","x","÷","2456"],
+                    ["-","234","+","-","789"],
+                    ["x","1234","-","x","321"],
+                    ["+","1234","+","÷","5426"],
+                    ["18","÷","x","42"]
+                ]
+        
+        toInput.forEach((i)=>{
+            runInput(i)
+            result.push(inputDisplay.textContent)
+            clearInput()
+        });
+        output = [ '124÷2456', '-234-789', '1234x321','1234÷5426','18x42' ]
+        expect(result).toEqual(output)
+    })
 })
