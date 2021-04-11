@@ -6,7 +6,7 @@ const html = fs.readFileSync('index.html' ).toString();
 
 var dom = new JSDOM( html,{ runScripts: "dangerously",resources: "usable" });
 const keys = document.querySelectorAll(".bottom span");
-const deleteBtn = document.querySelector(".delete");
+const delKey = document.querySelector(".delete");
 const result = document.querySelector(".result");
 
 keys.forEach(key => {
@@ -121,9 +121,11 @@ const makeComputable = (val)=>{
     //replace x and ÷ with * and / respectively
     return val.replace(/x/g, "*").replace(/÷/g, "/");
 }
-
-
-function deleteKeyPress(e){
+const handleDelete=(e)=>{
+  val = val.slice(0,-1)
+  inputDisplay.innerHTML = val
+}
+function handleClear(e){
   userInput = []
   val =''
   last=''
@@ -134,8 +136,9 @@ function deleteKeyPress(e){
 const fn = {
   inputDisplay,
   handleKeyPress,
+  handleDelete,
+  handleClear,
   tokenizeUserInput,
-  deleteKeyPress,
   makeComputable,
   evaluate,
   resultDisplay

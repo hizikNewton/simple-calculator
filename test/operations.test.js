@@ -2,22 +2,36 @@
 const jsdom = require( 'jsdom' );
 const { JSDOM } = require('jsdom');
 const fs = require( 'fs' );
-
 const html = fs.readFileSync('index.html' ).toString();
-
 const virtualConsole = new jsdom.VirtualConsole();
+const {inputDisplay,handleKeyPress,handleDelete,handleClear,evaluate,tokenizeUserInput,makeComputable,resultDisplay} = require( '../index.js' );
 
 var dom = new JSDOM( html,{ runScripts: "dangerously",resources: "usable" },{ virtualConsole: virtualConsole.sendTo(console) });
-
-const {inputDisplay,handleKeyPress,deleteKeyPress,evaluate,tokenizeUserInput,makeComputable,resultDisplay} = require( '../index.js' );
-
-let toInput,output
-var resultDisplayArr
+var delKey = dom.window.document.querySelector(`.delete`);
+let toInput,output,resultDisplayArr,pressTimer
 
 if ( global !== undefined ) {
     global.window = dom.window;
     global.document = dom.window.document;
   }
+
+const deleteInput = () =>{
+    delKey.addEventListener("click",handleDelete);
+    delKey.dispatchEvent(new dom.window.MouseEvent('click'));
+}
+
+const handleMouseup = ()=>clearTimeout(pressTimer);
+
+const handleMousedown = ()=>{
+    pressTimer = window.setTimeout(handleClear(),1000);
+  }
+
+const clearInput = ()=>{
+    delKey.addEventListener("mouseup",handleMouseup);
+    delKey.addEventListener("mousedown",handleMousedown);
+    delKey.dispatchEvent(new dom.window.MouseEvent('mousedown'));
+    delKey.dispatchEvent(new dom.window.MouseEvent('mouseup'));
+}
 
 function runInput(input){
     resultDisplayArr = []
@@ -47,11 +61,6 @@ function runArrayInput(inputArr,callback){
         return resultAndCbkResult
     }
     return result
-}
-function clearInput(){
-    let key = dom.window.document.querySelector(".delete")
-    key.addEventListener("click",deleteKeyPress);
-    key.dispatchEvent(new dom.window.MouseEvent('click'));
 }
 
 describe('Browser Window',()=>{
@@ -157,8 +166,16 @@ describe('Results',()=>{
        toInput = toInput[2]
         runInput(toInput)
         let answer = ["","","","","","-232","-210","12"]
+        clearInput()
         expect(resultDisplayArr).toEqual(answer)
     })
-
-    
 })
+
+describe('Deletions',()=>{
+    let toInput = "5362x1234"
+    it('removes the last entry',()=>{
+        runInput(toInput)
+        deleteInput()
+        expect(inputDisplay.textContent).toMatch('5362x123')
+    });
+});
