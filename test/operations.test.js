@@ -4,10 +4,11 @@ const { JSDOM } = require('jsdom');
 const fs = require( 'fs' );
 const html = fs.readFileSync('index.html' ).toString();
 const virtualConsole = new jsdom.VirtualConsole();
-const {inputDisplay,handleKeyPress,handleDelete,handleClear,evaluate,tokenizeUserInput,makeComputable,resultDisplay} = require( '../index.js' );
+const {inputDisplay,handleKeyPress,handleDelete,delKey,handleClear,evaluate,tokenizeUserInput,makeComputable,resultDisplay} = require( '../index.js' );
 
 var dom = new JSDOM( html,{ runScripts: "dangerously",resources: "usable" },{ virtualConsole: virtualConsole.sendTo(console) });
-var delKey = dom.window.document.querySelector(`.delete`);
+
+
 let toInput,output,resultDisplayArr,pressTimer
 
 if ( global !== undefined ) {
@@ -123,11 +124,12 @@ describe('UserInput',()=>{
                     ["-","234","+","-","789"],
                     ["x","1234","-","x","321"],
                     ["+","1234","+","÷","5426"],
+                    ['-','x','.23','+','8'],
                     ["18","÷","x","42"]
                 ]
         let result = runArrayInput(toInput)
         
-        output = [ '124÷2456', '-234-789', '1234x321','1234÷5426','18x42' ]
+        output = [ '124÷2456', '-234-789', '1234x321','1234÷5426','.23+8','18x42' ]
         expect(result).toEqual(output)
     });
     //remove leading zero
@@ -171,11 +173,25 @@ describe('Results',()=>{
     })
 })
 
-describe('Deletions',()=>{
+describe('Delete Operator',()=>{
     let toInput = "5362x1234"
     it('removes the last entry',()=>{
         runInput(toInput)
         deleteInput()
         expect(inputDisplay.textContent).toMatch('5362x123')
     });
+    it('longpress should clear screen',()=>{
+        clearInput()
+        let display = inputDisplay.innerHTML===""&&resultDisplay.innerHTML===""?true:false
+        expect(display).toBe(true)
+    });
+    
 });
+describe('Equal Operator',()=>{
+    it('becomes CLR on equal-to operator key pressed',()=>{
+        toInput = ['234x456=']
+        runInput(toInput)
+        expect(inputDisplay.innerHTML).toMatch(eval(234*456).toString())
+        expect(delKey.innerHTML).toMatch('CLR')
+    })
+})

@@ -6,7 +6,6 @@ const html = fs.readFileSync('index.html' ).toString();
 
 var dom = new JSDOM( html,{ runScripts: "dangerously",resources: "usable" });
 const keys = document.querySelectorAll(".bottom span");
-const delKey = document.querySelector(".delete");
 const result = document.querySelector(".result");
 
 keys.forEach(key => {
@@ -23,10 +22,13 @@ let userInput = []
 
 let inputDisplay = dom.window.document.querySelector(".input")
 let resultDisplay = dom.window.document.querySelector(".result")
+let delKey = dom.window.document.querySelector(".delete")
 
 function handleKeyPress(e){
   entry = e.target.dataset.key;
-
+  if (entry === "=") {
+    return;
+  }
   if(operators.indexOf(entry)!=-1){
     userInput = userInput.concat([val,entry])
   }
@@ -108,10 +110,18 @@ function noLeadingZero(val,entry){
 }
 
 function evaluate(e){
+  const key = e.target.dataset.key;
   const final = makeComputable(val)
   try{
     let regexp = /\d+["+", "-", "*", "/"]\d+/.test(final)
     answer = regexp? +(eval(final)).toFixed(5):''
+    
+    if(key=='='){
+      val = answer
+      inputDisplay.innerHTML = answer
+      resultDisplay.innerHTML = ''
+      delKey.innerHTML = 'CLR'
+    }
     resultDisplay.innerHTML = answer;
   }catch(e){
     console.log('error')
@@ -141,6 +151,7 @@ const fn = {
   tokenizeUserInput,
   makeComputable,
   evaluate,
-  resultDisplay
+  resultDisplay,
+  delKey
 }
 module.exports = fn
