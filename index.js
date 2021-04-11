@@ -11,10 +11,12 @@ const result = document.querySelector(".result");
 
 keys.forEach(key => {
   key.addEventListener("click",handleKeyPress);
+  key.addEventListener("click", evaluate);
 });
 
 let val = '';
 let last = ''
+let res
 let entry
 const operators = ["+", "-", "x","÷"];
 let userInput = []
@@ -105,14 +107,21 @@ function noLeadingZero(val,entry){
 }
 
 function evaluate(e){
-    /* if(val.includes('x')){
-    val = val.replace('x','*')
+  const final = makeComputable(val)
+  // if operation is empty set result to ""
+  if (final.length === 0) {
+    answer = "0";
+    result.innerHTML = answer;
+    return;
   }
-  if(val.includes('÷')){
-    val = val.replace('÷','/')
-  }
- */
+  answer = +(eval(final)).toFixed(5);
+  result.innerHTML = answer;
 }
+const makeComputable = (val)=>{
+    //replace x and ÷ with * and / respectively
+    return val.replace(/x/g, "*").replace(/÷/g, "/");
+}
+
 
 function deleteKeyPress(e){
   userInput = []
@@ -125,6 +134,7 @@ const fn = {
   inputDisplay,
   handleKeyPress,
   tokenizeUserInput,
-  deleteKeyPress
+  deleteKeyPress,
+  makeComputable
 }
 module.exports = fn;

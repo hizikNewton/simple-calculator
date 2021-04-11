@@ -9,7 +9,7 @@ const virtualConsole = new jsdom.VirtualConsole();
 
 var dom = new JSDOM( html,{ runScripts: "dangerously",resources: "usable" },{ virtualConsole: virtualConsole.sendTo(console) });
 
-const {inputDisplay,handleKeyPress,deleteKeyPress,tokenizeUserInput,result} = require( '../index.js' );
+const {inputDisplay,handleKeyPress,deleteKeyPress,tokenizeUserInput,makeComputable} = require( '../index.js' );
 
 let toInput,output
 
@@ -27,13 +27,20 @@ function runInput(input){
         })
     }
 }
-function runArrayInput(inputArr){
+function runArrayInput(inputArr,callback){
     let result = []
+    let resultAndCbkResult = {}
     inputArr.forEach((i)=>{
         runInput(i)
         result.push(inputDisplay.textContent)
         clearInput()
     });
+    if(callback){
+        result.forEach((i)=>{
+            resultAndCbkResult[i] = callback(i)
+        })
+        return resultAndCbkResult
+    }
     return result
 }
 function clearInput(){
@@ -61,17 +68,6 @@ describe('UserInput',()=>{
             i = i.join('')
             output.push(i)
         })
-        /* toInput.forEach((i)=>{
-            i = i.join('').push()i
-            i.includes('x')?output.push(i.replace('x','*'))
-            :i.includes('÷')?output.push(i.replace('÷','/')) 
-            :output.push(i)
-        })
-        toInput.forEach((i)=>{
-            runInput(i)
-            result.push(inputDisplay.textContent)
-            clearInput()
-        }); */
 
         let result = runArrayInput(toInput)
         expect(result).toEqual(output)
@@ -132,4 +128,25 @@ describe('UserInput',()=>{
         output = ['124÷26', '124x2456', '0.234+789', '-1234-0.321']
         expect(result).toEqual(output)
     });
+})
+
+describe('Results',()=>{
+    it('should return a computable string',()=>{
+
+        toInput = [
+            ["5362","x","1234"],
+            ["1234","÷","2456"],
+            ["-","234","+","246"],
+            ["x","1234","-","24.56"],
+            ["5.362","+","12.3.4"],
+            ["x","1234","-","x","321"],
+            ["+","-","1234","+","÷","5426"],
+            ["0.234","+","0789"],
+            ["-01234","-","0.321"]
+        ]
+         
+        let result = Object.values(runArrayInput(toInput,makeComputable))
+        output = ['5362*1234', '1234/2456','-234+246','1234-24.56','5.362+12.34','1234*321','-1234/5426','0.234+789', '-1234-0.321']
+        expect(result).toEqual(output)
+    })
 })
