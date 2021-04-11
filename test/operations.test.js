@@ -9,9 +9,10 @@ const virtualConsole = new jsdom.VirtualConsole();
 
 var dom = new JSDOM( html,{ runScripts: "dangerously",resources: "usable" },{ virtualConsole: virtualConsole.sendTo(console) });
 
-const {inputDisplay,handleKeyPress,deleteKeyPress,tokenizeUserInput,makeComputable} = require( '../index.js' );
+const {inputDisplay,handleKeyPress,deleteKeyPress,evaluate,tokenizeUserInput,makeComputable,resultDisplay} = require( '../index.js' );
 
 let toInput,output
+var resultDisplayArr
 
 if ( global !== undefined ) {
     global.window = dom.window;
@@ -19,14 +20,18 @@ if ( global !== undefined ) {
   }
 
 function runInput(input){
+    resultDisplayArr = []
     for (const i of input){
         i.split("").forEach(elem=>{
             let key = dom.window.document.querySelector(`.bottom span[data-key~="${elem}"]`);
             key.addEventListener("click",handleKeyPress);
+            key.addEventListener("click",evaluate);
             key.dispatchEvent(new dom.window.MouseEvent('click'));
+            resultDisplayArr.push(resultDisplay.innerHTML)
         })
     }
 }
+
 function runArrayInput(inputArr,callback){
     let result = []
     let resultAndCbkResult = {}
@@ -131,9 +136,7 @@ describe('UserInput',()=>{
 })
 
 describe('Results',()=>{
-    it('should return a computable string',()=>{
-
-        toInput = [
+        let toInput = [
             ["5362","x","1234"],
             ["1234","÷","2456"],
             ["-","234","+","246"],
@@ -144,9 +147,18 @@ describe('Results',()=>{
             ["0.234","+","0789"],
             ["-01234","-","0.321"]
         ]
-         
+    it('should return a computable string',()=>{
         let result = Object.values(runArrayInput(toInput,makeComputable))
         output = ['5362*1234', '1234/2456','-234+246','1234-24.56','5.362+12.34','1234*321','-1234/5426','0.234+789', '-1234-0.321']
         expect(result).toEqual(output)
     })
+
+    it('evaluate on the go',()=>{
+       toInput = toInput[2]
+        runInput(toInput)
+        let answer = ["","","","","","-232","-210","12"]
+        expect(resultDisplayArr).toEqual(answer)
+    })
+
+    
 })

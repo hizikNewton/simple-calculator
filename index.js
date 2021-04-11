@@ -22,6 +22,7 @@ const operators = ["+", "-", "x","÷"];
 let userInput = []
 
 let inputDisplay = dom.window.document.querySelector(".input")
+let resultDisplay = dom.window.document.querySelector(".result")
 
 function handleKeyPress(e){
   entry = e.target.dataset.key;
@@ -108,14 +109,13 @@ function noLeadingZero(val,entry){
 
 function evaluate(e){
   const final = makeComputable(val)
-  // if operation is empty set result to ""
-  if (final.length === 0) {
-    answer = "0";
-    result.innerHTML = answer;
-    return;
+  try{
+    let regexp = /\d+["+", "-", "*", "/"]\d+/.test(final)
+    answer = regexp? +(eval(final)).toFixed(5):''
+    resultDisplay.innerHTML = answer;
+  }catch(e){
+    console.log('error')
   }
-  answer = +(eval(final)).toFixed(5);
-  result.innerHTML = answer;
 }
 const makeComputable = (val)=>{
     //replace x and ÷ with * and / respectively
@@ -128,6 +128,7 @@ function deleteKeyPress(e){
   val =''
   last=''
   inputDisplay.textContent = '';
+  resultDisplay.textContent = '';
 }
 
 const fn = {
@@ -135,6 +136,8 @@ const fn = {
   handleKeyPress,
   tokenizeUserInput,
   deleteKeyPress,
-  makeComputable
+  makeComputable,
+  evaluate,
+  resultDisplay
 }
-module.exports = fn;
+module.exports = fn
