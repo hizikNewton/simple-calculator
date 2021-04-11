@@ -1,12 +1,28 @@
-const jsdom = require( 'jsdom' );
-const { JSDOM } = require('jsdom');
-const fs = require( 'fs' );
-
-const html = fs.readFileSync('index.html' ).toString();
-
-var dom = new JSDOM( html,{ runScripts: "dangerously",resources: "usable" });
-const keys = document.querySelectorAll(".bottom span");
+const inputDisplay = document.querySelector(".input")
+const resultDisplay = document.querySelector(".result")
+const delKey = document.querySelector(".delete")
+const clrKey = document.querySelector(".clear")
+const keys = document.querySelectorAll(".bottom span[data-key]");
 const result = document.querySelector(".result");
+
+let pressTimer
+
+const handleMouseup = ()=>clearTimeout(pressTimer);
+
+const handleMousedown = ()=>{
+  pressTimer = window.setTimeout(handleClear(),1000);
+}
+const handleDelete = (e)=>{
+  val = val.slice(0,-1)
+  inputDisplay.innerHTML = val
+}
+
+delKey.addEventListener("click",handleDelete);
+
+if(clrKey){
+clrKey.addEventListener("mouseup",handleMouseup);
+clrKey.addEventListener("mousedown",handleMousedown);
+}
 
 keys.forEach(key => {
   key.addEventListener("click",handleKeyPress);
@@ -20,9 +36,6 @@ let entry
 const operators = ["+", "-", "x","÷"];
 let userInput = []
 
-let inputDisplay = dom.window.document.querySelector(".input")
-let resultDisplay = dom.window.document.querySelector(".result")
-let delKey = dom.window.document.querySelector(".delete")
 
 function handleKeyPress(e){
   entry = e.target.dataset.key;
@@ -124,17 +137,15 @@ function evaluate(e){
     }
     resultDisplay.innerHTML = answer;
   }catch(e){
-    console.log('error')
+    inputDisplay.innerHTML = val
   }
 }
 const makeComputable = (val)=>{
     //replace x and ÷ with * and / respectively
     return val.replace(/x/g, "*").replace(/÷/g, "/");
 }
-const handleDelete=(e)=>{
-  val = val.slice(0,-1)
-  inputDisplay.innerHTML = val
-}
+
+
 function handleClear(e){
   userInput = []
   val =''
@@ -143,7 +154,7 @@ function handleClear(e){
   resultDisplay.textContent = '';
 }
 
-const fn = {
+/* const fn = {
   inputDisplay,
   handleKeyPress,
   handleDelete,
@@ -154,4 +165,4 @@ const fn = {
   resultDisplay,
   delKey
 }
-module.exports = fn
+module.exports = fn */
